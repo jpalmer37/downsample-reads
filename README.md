@@ -6,6 +6,17 @@
 nextflow run BCCDC-PHL/downsample-reads \
   -profile conda \
   --cache ~/.conda/envs \
+  --coverage 30 \
+  --fastq_input </path/to/fastqs> \
+  --outdir </path/to/output_dir>
+```
+
+Alternatively, samples can be downsampled to multiple depths using a `coverages.csv` file:
+
+```
+nextflow run BCCDC-PHL/downsample-reads \
+  -profile conda \
+  --cache ~/.conda/envs \
   --coverages </path/to/coverages.csv> \
   --fastq_input </path/to/fastqs> \
   --outdir </path/to/output_dir>
