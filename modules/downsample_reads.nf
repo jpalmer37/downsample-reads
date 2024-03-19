@@ -8,9 +8,18 @@ process fastp {
     output:
     tuple val(sample_id), path("${sample_id}_${target_coverage}x_fastp.json"), emit: json
     tuple val(sample_id), path("${sample_id}_${target_coverage}x_fastp.csv"), emit: csv
+    tuple val(sample_id), val(target_coverage), path("${sample_id}_${target_coverage}x_fastp_provenance.yml"), emit: provenance
 
     script:
     """
+    printf -- "- process_name: fastp\\n"  >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+    printf -- "  tools:\\n"               >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+    printf -- "    - tool_name: fastp\\n" >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+    printf -- "      tool_version: \$(fastp --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${target_coverage}_fastp_provenance.yml
+    printf -- "      parameters:\\n"               >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+    printf -- "        - parameter: --cut_tail\\n" >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+    printf -- "          value: null\\n"           >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+
     fastp \
       -t ${task.cpus} \
       -i ${reads[0]} \
@@ -35,16 +44,27 @@ process downsample {
 
     tag { sample_id + ' / ' + genome_size + ' / ' + coverage + 'x' }
 
-    publishDir "${params.outdir}", pattern: "${sample_id}-downsample-*x_R*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-*x_R*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sample_id), path(reads), val(genome_size), val(coverage)
 
     output:
     tuple val(sample_id), path("${sample_id}-downsample-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
+    tuple val(sample_id), val(coverage), path("${sample_id}_${coverage}x_downsample_provenance.yml"), emit: provenance
 
     script:
     """
+    printf -- "- process_name: downsample\\n"         >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "  tools:\\n"                           >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "    - tool_name: rasusa\\n"            >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "      tool_version: \$(rasusa --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${coverage}_downsample_provenance.yml
+    printf -- "      parameters:\\n"                  >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "        - parameter: --coverage\\n"    >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "          value: ${coverage}\\n"       >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "        - parameter: --genome-size\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "          value: ${genome_size}\\n"    >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    
     rasusa \
       -i ${reads[0]} \
       -i ${reads[1]} \
