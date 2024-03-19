@@ -87,18 +87,16 @@ Filenames are appended with `-downsample-Nx`, where `N` is the target coverage f
 
 ```
 outdir
-|-- sample-01-downsample-10x_R1.fastq.gz
-|-- sample-01-downsample-10x_R2.fastq.gz
-|-- sample-01-downsample-20x_R1.fastq.gz
-|-- sample-01-downsample-20x_R2.fastq.gz
-|-- sample-01-downsample-2x_R1.fastq.gz
-|-- sample-01-downsample-2x_R2.fastq.gz
-|-- sample-01-downsample-30x_R1.fastq.gz
-|-- sample-01-downsample-30x_R2.fastq.gz
-|-- sample-01-downsample-40x_R1.fastq.gz
-|-- sample-01-downsample-40x_R2.fastq.gz
-|-- sample-01-downsample-5x_R1.fastq.gz
-|-- sample-01-downsample-5x_R2.fastq.gz
+`-- sample-01
+    |-- sample-01-downsample-25x_R1.fastq.gz
+    |-- sample-01-downsample-25x_R2.fastq.gz
+    |-- sample-01-downsample-50x_R1.fastq.gz
+    `-- sample-01-downsample-50x_R2.fastq.gz
+`-- sample-02
+    |-- sample-02-downsample-10x_R1.fastq.gz
+    |-- sample-02-downsample-10x_R2.fastq.gz
+    |-- sample-02-downsample-100x_R1.fastq.gz
+    `-- sample-02-downsample-100x_R2.fastq.gz
 `-- fastp.csv
 ```
 
@@ -116,4 +114,43 @@ sample-03  366112       55000224     0.887422  5.5m         10               10.
 sample-01  1663158      250000208    0.884677  5.0m         50               50.0
 sample-02  1830796      275000177    0.887517  5.5m         50               50.0
 sample-03  2500548      375831165    0.877859  5.0m         100              75.166
+```
+
+## Provenance
+
+```yml
+- pipeline_name: BCCDC-PHL/downsample-reads
+  pipeline_version: 0.1.0
+  nextflow_session_id: ceb7cc4c-644b-47bd-9469-5f3a7658119f
+  nextflow_run_name: voluminous_jennings
+  analysis_start_time: 2024-03-19T15:23:43.570174-07:00
+- input_filename: NC000962_R1.fastq.gz
+  file_type: fastq-input
+  sha256: 2793587aeb2b87bece4902183c295213a7943ea178c83f8b5432594d4b2e3b84
+- input_filename: NC000962_R2.fastq.gz
+  file_type: fastq-input
+  sha256: 336e4c42a60f22738c87eb1291270ab4ddfd918f32fa1fc662421d4f9605ea59
+- process_name: fastp
+  tools:
+    - tool_name: fastp
+      tool_version: 0.23.2
+      parameters:
+        - parameter: --cut_tail
+          value: null
+- process_name: downsample
+  tools:
+    - tool_name: rasusa
+      tool_version: 0.7.0
+      parameters:
+        - parameter: --coverage
+          value: 10
+        - parameter: --genome-size
+          value: 4.4m
+- process_name: fastp
+  tools:
+    - tool_name: fastp
+      tool_version: 0.23.2
+      parameters:
+        - parameter: --cut_tail
+          value: null
 ```
