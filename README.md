@@ -118,6 +118,8 @@ sample-03  2500548      375831165    0.877859  5.0m         100              75.
 
 ## Provenance
 
+In the output directory for each sample, a provenance file will be written with the following format:
+
 ```yml
 - pipeline_name: BCCDC-PHL/downsample-reads
   pipeline_version: 0.1.0
