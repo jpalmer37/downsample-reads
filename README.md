@@ -1,3 +1,5 @@
+[![Tests](https://github.com/BCCDC-PHL/downsample-reads/actions/workflows/tests.yml/badge.svg)](https://github.com/BCCDC-PHL/downsample-reads/actions/workflows/tests.yml)
+
 # downsample-reads
 
 ## Usage
