@@ -65,7 +65,7 @@ def main(args):
     provenace_files_glob = f"{args.pipeline_outdir}/**/*_provenance.yml"
     provenance_files = glob.glob(provenace_files_glob, recursive=True)
 
-    fastp_file = f"{args.pipeline_outdir}/fastp.csv"
+    downsampling_summary_file = f"{args.pipeline_outdir}/collected_downsampling_summary.csv"
 
     expected_coverage_by_sample_id = {
         'NC000913': 5.0,
