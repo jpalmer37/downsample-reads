@@ -79,7 +79,7 @@ def main(args):
         },
         {
             "test_name": "expected_coverage",
-            "test_passed": check_expected_coverage(fastp_file, expected_coverage_by_sample_id),
+            "test_passed": check_expected_coverage(downsampling_summary_file, expected_coverage_by_sample_id),
         },
     ]
 
