@@ -2,6 +2,15 @@
 
 # downsample-reads
 
+```mermaid
+flowchart TD
+  reads --> fastp_input(fastp_input)
+  fastp_input --> downsample("downsample (rasusa)")
+  downsample --> fastp_output(fastp_output)
+  downsample --> downsampled_reads
+  fastp_output --> downsampling_summary[downsampling_summary.csv]
+```
+
 ## Usage
 
 ```
@@ -63,7 +72,6 @@ nextflow run BCCDC-PHL/downsample-reads \
   -profile conda \
   --cache ~/.conda/envs \
   --samplesheet_input samplesheet.csv \
-  --fastq_input </path/to/fastqs> \
   --outdir </path/to/output_dir>
 ```
 
