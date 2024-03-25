@@ -1,24 +1,31 @@
 process fastp {
 
-    tag { sample_id }
+    tag { sample_id + ' / ' + target_coverage_filename }
+
+    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_${target_coverage_filename}_downsampling_summary.csv", mode: 'copy'
 
     input:
     tuple val(sample_id), path(reads), val(genome_size), val(target_coverage)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${target_coverage}x_fastp.json"), emit: json
-    tuple val(sample_id), path("${sample_id}_${target_coverage}x_fastp.csv"), emit: csv
-    tuple val(sample_id), val(target_coverage), path("${sample_id}_${target_coverage}x_fastp_provenance.yml"), emit: provenance
+    tuple val(sample_id), path("${sample_id}_${target_coverage_filename}_fastp.json"), emit: json
+    tuple val(sample_id), path("${sample_id}_${target_coverage_filename}_downsampling_summary.csv"), emit: csv
+    tuple val(sample_id), val(target_coverage), path("${sample_id}_${target_coverage_filename}_fastp_provenance.yml"), emit: provenance
 
     script:
+    if (target_coverage == 'original') {
+	target_coverage_filename = 'original'
+    } else {
+	target_coverage_filename = target_coverage + 'x'
+    }
     """
-    printf -- "- process_name: fastp\\n"  >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
-    printf -- "  tools:\\n"               >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
-    printf -- "    - tool_name: fastp\\n" >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
-    printf -- "      tool_version: \$(fastp --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
-    printf -- "      parameters:\\n"               >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
-    printf -- "        - parameter: --cut_tail\\n" >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
-    printf -- "          value: null\\n"           >> ${sample_id}_${target_coverage}x_fastp_provenance.yml
+    printf -- "- process_name: fastp\\n"  >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
+    printf -- "  tools:\\n"               >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
+    printf -- "    - tool_name: fastp\\n" >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
+    printf -- "      tool_version: \$(fastp --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
+    printf -- "      parameters:\\n"               >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
+    printf -- "        - parameter: --cut_tail\\n" >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
+    printf -- "          value: null\\n"           >> ${sample_id}_${target_coverage_filename}_fastp_provenance.yml
 
     fastp \
       -t ${task.cpus} \
@@ -27,7 +34,7 @@ process fastp {
       --cut_tail \
       -o ${sample_id}_R1.trim.fastq.gz \
       -O ${sample_id}_R2.trim.fastq.gz \
-      -j ${sample_id}_${target_coverage}x_fastp.json
+      -j ${sample_id}_${target_coverage_filename}_fastp.json
 
     echo "target_coverage"  >> coverage_field.csv
     echo ${target_coverage} >> coverage_field.csv
@@ -35,8 +42,8 @@ process fastp {
     echo "genome_size"  >> genome_size_field.csv
     echo ${genome_size} >> genome_size_field.csv
 
-    fastp_json_to_csv.py -s ${sample_id} ${sample_id}_${target_coverage}x_fastp.json > ${sample_id}_fastp.csv
-    paste -d ',' ${sample_id}_fastp.csv genome_size_field.csv coverage_field.csv | calculate_estimated_coverage.py > ${sample_id}_${target_coverage}x_fastp.csv
+    fastp_json_to_csv.py -s ${sample_id} ${sample_id}_${target_coverage_filename}_fastp.json > ${sample_id}_fastp.csv
+    paste -d ',' ${sample_id}_fastp.csv genome_size_field.csv coverage_field.csv | calculate_estimated_coverage.py > ${sample_id}_${target_coverage_filename}_downsampling_summary.csv
     """
 }
 
@@ -47,7 +54,7 @@ process downsample {
     publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-*x_R*.fastq.gz", mode: 'copy'
 
     input:
-    tuple val(sample_id), path(reads), val(genome_size), val(coverage)
+    tuple val(sample_id), path(reads), val(coverage), val(genome_size)
 
     output:
     tuple val(sample_id), path("${sample_id}-downsample-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
