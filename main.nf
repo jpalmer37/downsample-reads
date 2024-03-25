@@ -56,5 +56,5 @@ workflow {
     ch_provenance = ch_provenance.join(downsample.out.provenance).map{ it -> [it[0], it[1], it[2] << it[4]] }
     ch_provenance = ch_provenance.join(fastp_output.out.provenance).map{ it -> [it[0], it[1], it[2] << it[4]] }
 
-    collect_provenance(ch_provenance.view())
+    collect_provenance(ch_provenance)
 }
