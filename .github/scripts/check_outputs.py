@@ -65,7 +65,7 @@ def main(args):
     provenace_files_glob = f"{args.pipeline_outdir}/**/*_provenance.yml"
     provenance_files = glob.glob(provenace_files_glob, recursive=True)
 
-    fastp_file = f"{args.pipeline_outdir}/fastp.csv"
+    downsampling_summary_file = f"{args.pipeline_outdir}/collected_downsampling_summary.csv"
 
     expected_coverage_by_sample_id = {
         'NC000913': 5.0,
@@ -79,7 +79,7 @@ def main(args):
         },
         {
             "test_name": "expected_coverage",
-            "test_passed": check_expected_coverage(fastp_file, expected_coverage_by_sample_id),
+            "test_passed": check_expected_coverage(downsampling_summary_file, expected_coverage_by_sample_id),
         },
     ]
 

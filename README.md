@@ -89,6 +89,41 @@ sample-03,/path/to/sample-03_R1.fastq.gz,/path/to/sample-03_R2.fastq.gz,3.0m,100
 sample-03,/path/to/sample-03_R1.fastq.gz,/path/to/sample-03_R2.fastq.gz,3.0m,200
 ```
 
+### Collect Outputs
+
+By default, a separate 'downsampling summary' csv file will be created for each sample, for
+each depth of coverage that is specified. If the `--collect_outputs` flag is supplied then
+an additional file will be included in the output directory that includes downsampling summary
+info for all samples.
+
+By default, the collected downsampling summary file will be named `collected_downsampling_summary.csv`.
+Use the `--collected_outputs_prefix` flag to replace `collected` with some other prefix.
+
+For example:
+
+```
+nextflow run BCCDC-PHL/downsample-reads \
+  -profile conda \
+  --cache ~/.conda/envs \
+  --samplesheet_input samplesheet.csv \
+  --collect_outputs \
+  --outdir </path/to/output_dir>
+```
+
+...will add the file `collected_downsampling_summary.csv` to the outdir. And:
+
+```
+nextflow run BCCDC-PHL/downsample-reads \
+  -profile conda \
+  --cache ~/.conda/envs \
+  --samplesheet_input samplesheet.csv \
+  --collect_outputs \
+  --collected_outputs_prefix test \
+  --outdir </path/to/output_dir>
+```
+
+...will add the file `test_downsampling_summary.csv` to the outdir.
+
 
 ## Output
 
@@ -98,19 +133,27 @@ Filenames are appended with `-downsample-Nx`, where `N` is the target coverage f
 ```
 outdir
 `-- sample-01
+    |-- sample-01_25x_20240325154538_provenance.yml
+    |-- sample-01_50x_20240325154538_provenance.yml
+    |-- sample-01_25x_downsampling_summary.csv
+    |-- sample-01_50x_downsampling_summary.csv
     |-- sample-01-downsample-25x_R1.fastq.gz
     |-- sample-01-downsample-25x_R2.fastq.gz
     |-- sample-01-downsample-50x_R1.fastq.gz
     `-- sample-01-downsample-50x_R2.fastq.gz
 `-- sample-02
+    |-- sample-02_10x_20240325154538_provenance.yml
+    |-- sample-02_100x_20240325154538_provenance.yml
+    |-- sample-02_10x_downsampling_summary.csv
+    |-- sample-02_100x_downsampling_summary.csv
     |-- sample-02-downsample-10x_R1.fastq.gz
     |-- sample-02-downsample-10x_R2.fastq.gz
     |-- sample-02-downsample-100x_R1.fastq.gz
     `-- sample-02-downsample-100x_R2.fastq.gz
-`-- fastp.csv
+`-- collected_downsampling_summary.csv
 ```
 
-The `fastp.csv` file will include a summary of the number of reads and bases, for each sample for each target coverage, plus the `original` input files.
+The `collected_downsampling_summary.csv` file will include a summary of the number of reads and bases, for each sample for each target coverage, plus the `original` input files.
 The depth of coverage of the output files is estimated based on the `total_bases` divided by the `genome_size`.
 
 ```csv
@@ -166,3 +209,5 @@ In the output directory for each sample, a provenance file will be written with 
         - parameter: --cut_tail
           value: null
 ```
+
+If multiple coverage levels are specified for a sample, then multiple provenance files will be created (one for each coverage level).

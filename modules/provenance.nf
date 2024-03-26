@@ -13,8 +13,13 @@ process collect_provenance {
     tuple val(sample_id), file("${sample_id}_*_provenance.yml")
 
     script:
+    if (coverage == 'original') {
+	coverage_filename = 'original'
+    } else {
+	coverage_filename = coverage + 'x'
+    }
     """
-    cat ${provenance_files} > ${sample_id}_\$(date +%Y%m%d%H%M%S)_provenance.yml
+    cat ${provenance_files} > ${sample_id}_${coverage_filename}_\$(date +%Y%m%d%H%M%S)_provenance.yml
     """
 }
 
