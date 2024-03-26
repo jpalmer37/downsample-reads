@@ -124,6 +124,25 @@ nextflow run BCCDC-PHL/downsample-reads \
 
 ...will add the file `test_downsampling_summary.csv` to the outdir.
 
+### Quality Trimming & Filtering
+
+By default, input fastq files will be run through [fastp](https://github.com/OpenGene/fastp) using its default settings. This
+means that [quality filtering](https://github.com/OpenGene/fastp?tab=readme-ov-file#quality-filter) will be applied to remove
+poor-quality reads. But [quality trimming](https://github.com/OpenGene/fastp?tab=readme-ov-file#per-read-cutting-by-quality-score)
+is not applied.
+
+To disable quality filtering, use the `--disable_quality_filtering` flag. To enable quality trimming, use the `--enable_quality_trimming`
+flag. For example:
+
+```
+nextflow run BCCDC-PHL/downsample-reads \
+  -profile conda \
+  --cache ~/.conda/envs \
+  --samplesheet_input samplesheet.csv \
+  --disable_quality_filtering \
+  --enable_quality_trimming \
+  --outdir </path/to/output_dir>
+```
 
 ## Output
 
@@ -179,10 +198,10 @@ In the output directory for each sample, a provenance file will be written with 
   nextflow_session_id: ceb7cc4c-644b-47bd-9469-5f3a7658119f
   nextflow_run_name: voluminous_jennings
   analysis_start_time: 2024-03-19T15:23:43.570174-07:00
-- input_filename: NC000962_R1.fastq.gz
+- filename: NC000962_R1.fastq.gz
   file_type: fastq-input
   sha256: 2793587aeb2b87bece4902183c295213a7943ea178c83f8b5432594d4b2e3b84
-- input_filename: NC000962_R2.fastq.gz
+- filename: NC000962_R2.fastq.gz
   file_type: fastq-input
   sha256: 336e4c42a60f22738c87eb1291270ab4ddfd918f32fa1fc662421d4f9605ea59
 - process_name: fastp
@@ -201,13 +220,12 @@ In the output directory for each sample, a provenance file will be written with 
           value: 10
         - parameter: --genome-size
           value: 4.4m
-- process_name: fastp
-  tools:
-    - tool_name: fastp
-      tool_version: 0.23.2
-      parameters:
-        - parameter: --cut_tail
-          value: null
+- filename: NC000962-downsample-10x_R1.fastq.gz
+  file_type: fastq-output
+  sha256: 2fe74753d889d1b6f02832a09b10a1cab51b1fb2e16a2af20577277aded07a83
+- filename: NC000962-downsample-10x_R2.fastq.gz
+  file_type: fastq-output
+  sha256: b6041ce11ccad3522b3f0ae4117967839ccad78a90e90f106ac399e2e23a8000
 ```
 
 If multiple coverage levels are specified for a sample, then multiple provenance files will be created (one for each coverage level).
