@@ -144,6 +144,13 @@ nextflow run BCCDC-PHL/downsample-reads \
   --outdir </path/to/output_dir>
 ```
 
+### Random Seed
+
+rasusa allows users to specify a [random seed](https://github.com/mbhall88/rasusa?tab=readme-ov-file#random-seed) to be used
+for its random subsampling algorithm. By default, rasusa generates a random seed at runtime using inputs from the operating system.
+This pipeline sets the default random seed to `0`, which ensures that the same set of reads will be sampled given the same inputs.
+A different random seed can be set using the `--random_seed` flag.
+
 ## Output
 
 A pair of fastq.gz files will be produced for each target coverage, for each sample.
@@ -220,6 +227,8 @@ In the output directory for each sample, a provenance file will be written with 
           value: 10
         - parameter: --genome-size
           value: 4.4m
+        - parameter: --seed
+          value: 0
 - filename: NC000962-downsample-10x_R1.fastq.gz
   file_type: fastq-output
   sha256: 2fe74753d889d1b6f02832a09b10a1cab51b1fb2e16a2af20577277aded07a83

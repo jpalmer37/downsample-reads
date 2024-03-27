@@ -81,23 +81,26 @@ process downsample {
 
     script:
     """
-    printf -- "- process_name: downsample\\n"         >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "  tools:\\n"                           >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "    - tool_name: rasusa\\n"            >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "- process_name: downsample\\n"             >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "  tools:\\n"                               >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "    - tool_name: rasusa\\n"                >> ${sample_id}_${coverage}x_downsample_provenance.yml
     printf -- "      tool_version: \$(rasusa --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "      parameters:\\n"                  >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "        - parameter: --coverage\\n"    >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "          value: ${coverage}\\n"       >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "        - parameter: --genome-size\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
-    printf -- "          value: ${genome_size}\\n"    >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "      parameters:\\n"                      >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "        - parameter: --coverage\\n"        >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "          value: ${coverage}\\n"           >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "        - parameter: --genome-size\\n"     >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "          value: ${genome_size}\\n"        >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "        - parameter: --seed\\n"            >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "          value: ${params.random_seed}\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
     
     rasusa \
-      -i ${reads[0]} \
-      -i ${reads[1]} \
-      --coverage ${coverage} \
-      --genome-size ${genome_size} \
-      -o ${sample_id}-downsample-${coverage}x_R1.fastq.gz \
-      -o ${sample_id}-downsample-${coverage}x_R2.fastq.gz
+        --seed ${params.random_seed} \
+        -i ${reads[0]} \
+        -i ${reads[1]} \
+        --coverage ${coverage} \
+        --genome-size ${genome_size} \
+        -o ${sample_id}-downsample-${coverage}x_R1.fastq.gz \
+        -o ${sample_id}-downsample-${coverage}x_R2.fastq.gz
     """
 }
 
