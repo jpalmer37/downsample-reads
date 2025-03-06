@@ -7,6 +7,7 @@ wget https://raw.githubusercontent.com/apptainer/apptainer/main/tools/install-un
 chmod +x install-unprivileged.sh
 
 mkdir -p /opt/apptainer
+mkdir -p ${HOME}/.apptainer/cache/images
 
 ./install-unprivileged.sh /opt/apptainer
 
