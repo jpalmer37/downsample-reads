@@ -1,3 +1,4 @@
+name: Tests (apptainer)
 on:
   pull_request:
     branches:
@@ -6,13 +7,12 @@ on:
     branches:
       - main
   workflow_dispatch:
-name: Tests
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        nextflow_version: ["21.04.3", "23.10.1"]
+        nextflow_version: ["23.10.1"]
     name: Run tests
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +25,8 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         architecture: x64
+    - name: Install Apptainer
+      run: bash .github/scripts/install_apptainer.sh
     - name: Install Miniconda
       run: bash .github/scripts/install_conda.sh
     - name: Install Nextflow
@@ -40,7 +42,7 @@ jobs:
     - name: Generate SampleSheets
       run: bash .github/scripts/generate_samplesheets.sh
     - name: Run Pipeline
-      run: bash .github/scripts/run_pipeline.sh
+      run: bash .github/scripts/run_pipeline_apptainer.sh
     - name: Create Output Checking Environment
       run: bash .github/scripts/create_output_checking_environment.sh
     - name: Check Outputs
@@ -52,5 +54,5 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: artifacts-BCCDC-PHL-downsample-reads-nextflow-v${{ matrix.nextflow_version }}-${{ github.run_id }}.${{ github.run_attempt }}
+        name: artifacts-BCCDC-PHL-downsample-reads-nextflow-v${{ matrix.nextflow_version }}-apptainer-${{ github.run_id }}.${{ github.run_attempt }}
         path: artifacts
