@@ -6,3 +6,4 @@ dependencies:
   - python=3
   - fastp=0.23.2
   - rasusa=0.7.0
+  - perl-digest-sha=5.88

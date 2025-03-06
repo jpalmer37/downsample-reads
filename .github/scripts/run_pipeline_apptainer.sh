@@ -3,8 +3,8 @@
 set -eo pipefail
 
 nextflow run main.nf \
-	 -profile conda \
-	 --cache ${HOME}/.conda/envs \
+	 -profile apptainer \
+	 --cache ${HOME}/.apptainer/cache/images \
 	 --samplesheet_input .github/data/samplesheet.csv \
 	 --outdir .github/data/test_output \
 	 --collect_outputs \
