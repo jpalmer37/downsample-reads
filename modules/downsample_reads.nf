@@ -3,6 +3,7 @@ process fastp {
     tag { sample_id + ' / ' + target_coverage_filename }
 
     publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_${target_coverage_filename}_downsampling_summary.csv", mode: 'copy'
+    // publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_R*.trim.fastq.gz", mode: 'copy', enabled: params.use_filtered_reads
 
     input:
     tuple val(sample_id), path(reads), val(genome_size), val(target_coverage)
@@ -10,6 +11,7 @@ process fastp {
     output:
     tuple val(sample_id), path("${sample_id}_${target_coverage_filename}_fastp.json"), emit: json
     tuple val(sample_id), path("${sample_id}_${target_coverage_filename}_downsampling_summary.csv"), emit: csv
+    tuple val(sample_id), path("${sample_id}_R*.trim.fastq.gz"), emit: filtered_reads
     tuple val(sample_id), val(target_coverage), path("${sample_id}_original_fastp_provenance.yml"), emit: provenance, optional: true
 
     script:
@@ -66,22 +68,22 @@ process fastp {
     """
 }
 
-process downsample {
+process downsample_rasusa {
 
     tag { sample_id + ' / ' + genome_size + ' / ' + coverage + 'x' }
 
-    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-*x_R*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-rasusa-*x_R*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sample_id), path(reads), val(coverage), val(genome_size)
 
     output:
-    tuple val(sample_id), path("${sample_id}-downsample-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
+    tuple val(sample_id), path("${sample_id}-downsample-rasusa-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
     tuple val(sample_id), val(coverage), path("${sample_id}_${coverage}x_downsample_provenance.yml"), emit: provenance
 
     script:
     """
-    printf -- "- process_name: downsample\\n"             >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "- process_name: downsample_rasusa\\n"             >> ${sample_id}_${coverage}x_downsample_provenance.yml
     printf -- "  tools:\\n"                               >> ${sample_id}_${coverage}x_downsample_provenance.yml
     printf -- "    - tool_name: rasusa\\n"                >> ${sample_id}_${coverage}x_downsample_provenance.yml
     printf -- "      tool_version: \$(rasusa --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
@@ -93,14 +95,53 @@ process downsample {
     printf -- "        - parameter: --seed\\n"            >> ${sample_id}_${coverage}x_downsample_provenance.yml
     printf -- "          value: ${params.random_seed}\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
     
-    rasusa \
+    rasusa reads \
         --seed ${params.random_seed} \
-        -i ${reads[0]} \
-        -i ${reads[1]} \
         --coverage ${coverage} \
         --genome-size ${genome_size} \
-        -o ${sample_id}-downsample-${coverage}x_R1.fastq.gz \
-        -o ${sample_id}-downsample-${coverage}x_R2.fastq.gz
+        ${reads[0]} \
+        ${reads[1]} \
+        -o ${sample_id}-downsample-rasusa-${coverage}x_R1.fastq.gz \
+        -o ${sample_id}-downsample-rasusa-${coverage}x_R2.fastq.gz
     """
 }
 
+process downsample_bbnorm {
+
+    tag { sample_id + ' / ' + genome_size + ' / ' + coverage + 'x' }
+
+    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-*x_R*.fastq.gz", mode: 'copy'
+
+    input:
+    tuple val(sample_id), path(reads), val(coverage), val(genome_size)
+
+    output:
+    tuple val(sample_id), path("${sample_id}-downsample-bbnorm-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
+    tuple val(sample_id), val(coverage), path("${sample_id}_${coverage}x_downsample_provenance.yml"), emit: provenance
+
+    script:
+    max_memory_gb = task.memory.toString().split(" ")[0]
+
+    """
+    printf -- "- process_name: downsample_bbnorm\\n"             >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "  tools:\\n"                               >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "    - tool_name: bbnorm\\n"                >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "      tool_version: \$(bbnorm.sh --version 2>&1 | head -n 2 | tail -n 1 | cut -d ' ' -f 3)\\n" >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "      parameters:\\n"                      >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "        - parameter: --coverage\\n"        >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    printf -- "          value: ${coverage}\\n"           >> ${sample_id}_${coverage}x_downsample_provenance.yml
+    
+    bbnorm.sh \
+        -Xmx${max_memory_gb}g \
+        in1=${reads[0]} \
+        in2=${reads[1]} \
+        out1=${sample_id}-downsample-bbnorm-${coverage}x_R1.fastq \
+        out2=${sample_id}-downsample-bbnorm-${coverage}x_R2.fastq \
+        target=${params.coverage} \
+	
+
+    gzip ${sample_id}-downsample-bbnorm-${coverage}x_R1.fastq
+    gzip ${sample_id}-downsample-bbnorm-${coverage}x_R2.fastq
+
+    """
+}
