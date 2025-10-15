@@ -3,7 +3,6 @@ process fastp {
     tag { sample_id + ' / ' + target_coverage_filename }
 
     publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_${target_coverage_filename}_downsampling_summary.csv", mode: 'copy'
-    // publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_R*.trim.fastq.gz", mode: 'copy', enabled: params.use_filtered_reads
 
     input:
     tuple val(sample_id), path(reads), val(genome_size), val(target_coverage)
