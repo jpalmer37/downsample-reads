@@ -4,6 +4,7 @@ channels:
   - bioconda
 dependencies:
   - python=3
-  - fastp=0.23.2
-  - rasusa=0.7.0
+  - fastp=1.0.1
+  - rasusa=2.1.1
+  - bbmap=39.33
   - perl-digest-sha=5.88
