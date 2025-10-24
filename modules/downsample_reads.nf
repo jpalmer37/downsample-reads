@@ -3,7 +3,6 @@ process fastp {
     tag { sample_id + ' / ' + target_coverage_filename }
 
     publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_${target_coverage_filename}_downsampling_summary.csv", mode: 'copy'
-    // publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_R*.trim.fastq.gz", mode: 'copy', enabled: params.use_filtered_reads
 
     input:
     tuple val(sample_id), path(reads), val(genome_size), val(target_coverage)
@@ -72,13 +71,13 @@ process downsample_rasusa {
 
     tag { sample_id + ' / ' + genome_size + ' / ' + coverage + 'x' }
 
-    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-rasusa-*x_R*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_downsample-rasusa-*x_R*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sample_id), path(reads), val(coverage), val(genome_size)
 
     output:
-    tuple val(sample_id), path("${sample_id}-downsample-rasusa-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
+    tuple val(sample_id), path("${sample_id}_downsample-rasusa-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
     tuple val(sample_id), val(coverage), path("${sample_id}_${coverage}x_downsample_provenance.yml"), emit: provenance
 
     script:
@@ -101,8 +100,8 @@ process downsample_rasusa {
         --genome-size ${genome_size} \
         ${reads[0]} \
         ${reads[1]} \
-        -o ${sample_id}-downsample-rasusa-${coverage}x_R1.fastq.gz \
-        -o ${sample_id}-downsample-rasusa-${coverage}x_R2.fastq.gz
+        -o ${sample_id}_downsample-rasusa-${coverage}x_R1.fastq.gz \
+        -o ${sample_id}_downsample-rasusa-${coverage}x_R2.fastq.gz
     """
 }
 
@@ -110,13 +109,13 @@ process downsample_bbnorm {
 
     tag { sample_id + ' / ' + genome_size + ' / ' + coverage + 'x' }
 
-    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}-downsample-*x_R*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_downsample-*x_R*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sample_id), path(reads), val(coverage), val(genome_size)
 
     output:
-    tuple val(sample_id), path("${sample_id}-downsample-bbnorm-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
+    tuple val(sample_id), path("${sample_id}_downsample-bbnorm-*x_R*.fastq.gz"), val(genome_size), val(coverage), emit: reads
     tuple val(sample_id), val(coverage), path("${sample_id}_${coverage}x_downsample_provenance.yml"), emit: provenance
 
     script:
@@ -135,13 +134,13 @@ process downsample_bbnorm {
         -Xmx${max_memory_gb}g \
         in1=${reads[0]} \
         in2=${reads[1]} \
-        out1=${sample_id}-downsample-bbnorm-${coverage}x_R1.fastq \
-        out2=${sample_id}-downsample-bbnorm-${coverage}x_R2.fastq \
+        out1=${sample_id}_downsample-bbnorm-${coverage}x_R1.fastq \
+        out2=${sample_id}_downsample-bbnorm-${coverage}x_R2.fastq \
         target=${params.coverage} \
 	
 
-    gzip ${sample_id}-downsample-bbnorm-${coverage}x_R1.fastq
-    gzip ${sample_id}-downsample-bbnorm-${coverage}x_R2.fastq
+    gzip ${sample_id}_downsample-bbnorm-${coverage}x_R1.fastq
+    gzip ${sample_id}_downsample-bbnorm-${coverage}x_R2.fastq
 
     """
 }
